@@ -9,25 +9,25 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.plugins.locationlayer.CompassListener;
 import com.mapbox.rctmgl.components.mapview.RCTMGLMapView;
-import com.mapbox.services.android.location.MockLocationEngine;
+// import com.mapbox.services.android.location.MockLocationEngine;
 import com.mapbox.services.android.telemetry.location.GoogleLocationEngine;
 import com.mapbox.services.android.telemetry.location.LocationEngine;
 import com.mapbox.services.android.telemetry.location.LocationEngineListener;
 import com.mapbox.services.android.telemetry.location.LocationEnginePriority;
-import com.mapbox.services.android.telemetry.location.LostLocationEngine;
+// import com.mapbox.services.android.telemetry.location.LostLocationEngine;
 import com.mapbox.services.android.telemetry.permissions.PermissionsManager;
-import com.mapbox.services.api.directions.v5.DirectionsCriteria;
-import com.mapbox.services.api.directions.v5.MapboxDirections;
-import com.mapbox.services.api.directions.v5.models.DirectionsResponse;
-import com.mapbox.services.api.directions.v5.models.DirectionsRoute;
+// import com.mapbox.services.api.directions.v5.DirectionsCriteria;
+// import com.mapbox.services.api.directions.v5.MapboxDirections;
+// import com.mapbox.services.api.directions.v5.models.DirectionsResponse;
+// import com.mapbox.services.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.services.commons.models.Position;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+// import retrofit2.Call;
+// import retrofit2.Callback;
+// import retrofit2.Response;
 
 /**
  * Created by nickitaliano on 12/12/17.
@@ -58,49 +58,52 @@ public class LocationManager implements LocationEngineListener {
         }
 
         if (locationEngine == null) {
-            if (MOCK_LOCATION) {
-                Position origin = Position.fromCoordinates(originCoord);
-                Position dest = Position.fromCoordinates(destCoord);
+            // if (MOCK_LOCATION) {
+            //     Position origin = Position.fromCoordinates(originCoord);
+            //     Position dest = Position.fromCoordinates(destCoord);
 
-                List<Position> positionList = new ArrayList<>();
-                positionList.add(origin);
-                positionList.add(dest);
+            //     List<Position> positionList = new ArrayList<>();
+            //     positionList.add(origin);
+            //     positionList.add(dest);
 
-                MapboxDirections client = new MapboxDirections.Builder<>()
-                        .setAccessToken(Mapbox.getAccessToken())
-                        .setProfile(DirectionsCriteria.PROFILE_DRIVING)
-                        .setSteps(true)
-                        .setCoordinates(positionList)
-                        .build();
+            //     MapboxDirections client = new MapboxDirections.Builder<>()
+            //             .setAccessToken(Mapbox.getAccessToken())
+            //             .setProfile(DirectionsCriteria.PROFILE_DRIVING)
+            //             .setSteps(true)
+            //             .setCoordinates(positionList)
+            //             .build();
 
-                final LocationManager self = this;
-                client.enqueueCall(new Callback<DirectionsResponse>() {
-                    @Override
-                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                        DirectionsRoute route = response.body().getRoutes().get(0);
+            //     final LocationManager self = this;
+            //     client.enqueueCall(new Callback<DirectionsResponse>() {
+            //         @Override
+            //         public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+            //             DirectionsRoute route = response.body().getRoutes().get(0);
 
-                        MockLocationEngine mockLocationEngine = new MockLocationEngine();
-                        mockLocationEngine.setRoute(route);
+            //             MockLocationEngine mockLocationEngine = new MockLocationEngine();
+            //             mockLocationEngine.setRoute(route);
 
-                        locationEngine = mockLocationEngine;
-                        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-                        locationEngine.addLocationEngineListener(self);
-                        locationEngine.setFastestInterval(1000);
-                        locationEngine.activate();
-                    }
+            //             locationEngine = mockLocationEngine;
+            //             locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+            //             locationEngine.addLocationEngineListener(self);
+            //             locationEngine.setFastestInterval(1000);
+            //             locationEngine.activate();
+            //         }
 
-                    @Override
-                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+            //         @Override
+            //         public void onFailure(Call<DirectionsResponse> call, Throwable t) {
 
-                    }
-                });
-            } else {
-                locationEngine = LostLocationEngine.getLocationEngine(context);
+            //         }
+            //     });
+            // } else {
+                locationEngine = GoogleLocationEngine.getLocationEngine(context);
                 locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
                 locationEngine.addLocationEngineListener(this);
-                locationEngine.setFastestInterval(1000);
+                locationEngine.setFastestInterval(500);
+                locationEngine.setInterval(750);
+                locationEngine.setSmallestDisplacement(0f);
                 locationEngine.activate();
-            }
+                locationEngine.requestLocationUpdates();
+            // }
         } else {
             locationEngine.activate();
         }
